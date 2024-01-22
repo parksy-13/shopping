@@ -1,21 +1,31 @@
 import express from 'express';
+import joi from 'joi';
 import Item from '../schemas/products.schema.js';
 
 const router = express.Router();
+
+const validationTest = joi.object({
+  product: joi.string().min(1).max(20),
+  content: joi.string().min(1).max(100),
+  writer: joi.string().min(1).max(15),
+  pw: joi.number().min(1).max(1000000),
+  soldStatus: joi.string().valid('FOR_SALE', 'SOLD_OUT'),
+})
 
 /* 상품 작성 API */
 //상품명, 작성 내용, 작성자명, 상품 상태, 비밀번호 전달받기
 //상품 상태는 판매 중(FOR_SALE)(기본)과 판매 완료(SOLD_OUT)을 가짐
 router.post('/products', async (req, res, next) => {
-  const { product, content, writer, pw } = req.body;
-
+  // const { product, content, writer, pw , soldStatus} = req.body;
+  const validation = await validationTest.validateAsync(req.body);
+  const { product, content, writer, pw , soldStatus} = validation;
   if (!product) {
     return res.status(400).json({ errorMessage: "상품이 없습니다." });
   }
 
   const date = new Date();
 
-  const newProduct = new Item({ product, content, writer, pw, date });
+  const newProduct = new Item({ product, content, writer, pw, date, soldStatus });
 
   await newProduct.save();
 
@@ -25,17 +35,15 @@ router.post('/products', async (req, res, next) => {
 /** 상품 목록 조회 API **/
 //상품명, 작성자명, 상품 상태, 작성 날짜 조회하기
 router.get('/products', async (req, res, next) => {
-  //상품명
   const products = await Item.find().sort('-date').exec();
 
   return res.status(200).json({ products });
 })
 
-
 /** 상품 정보(content) 수정 API(pw 동일시)**/
 router.patch('/products/:productsId', async (req, res, next) => {
   const { productsId } = req.params;
-  const { product, content, pw } = req.body;
+  const { product, content, pw, soldStatus } = req.body;
 
   // 나의 id에 맞는 상품이 무엇인지 찾는다.
   const currentProduct = await Item.findById(productsId).exec();
@@ -48,11 +56,13 @@ router.patch('/products/:productsId', async (req, res, next) => {
     const targetProduct = await Item.findOne({ product}).exec();
     if (pw === currentProduct.pw && product === currentProduct.product) {
       targetProduct.content = currentProduct.content;
+      targetProduct.soldStatus = currentProduct.soldStatus;
       await targetProduct.save();
     }else{
       return res.status(404).json({ errorMessage: "상품명과 비밀번호가 다릅니다." });
     }
     currentProduct.content = content;
+    currentProduct.soldStatus = soldStatus;
   }
 
   await currentProduct.save();
