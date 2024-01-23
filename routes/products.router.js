@@ -57,7 +57,7 @@ router.get('/products/:productsId', async (req, res, next) => {
   return res.status(200).json({targetProduct,targetWriter,targetStatus,targetDate});
 })
 
-/** 상품 정보(content) 수정 API(pw 동일시)**/
+/** 상품 정보(content, soldStatus) 수정 API(pw 동일시)**/
 router.patch('/products/:productsId', async (req, res, next) => {
   const { productsId } = req.params;
   const { product, content, pw, soldStatus } = req.body;
