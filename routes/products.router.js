@@ -43,7 +43,7 @@ router.get('/products', async (req, res) => {
 /** 상품 목록 조회 API **/
 //상품명, 작성자명, 상품 상태, 작성 날짜 조회하기
 router.get('/products/:productsId', async (req, res) => {
-  const {productsId} = req.params.productsId;
+  const productsId = req.params.productsId;
   const currentProduct = await Item.findById(productsId).exec();
   const targetProduct = currentProduct.product;
   const targetWriter = currentProduct.writer;
