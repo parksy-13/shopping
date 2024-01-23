@@ -16,7 +16,8 @@ const ItemSchema = new mongoose.Schema({
   },
   soldStatus:{ // 판매 상태: 판매 중(FOR_SALE)(기본), 판매 완료(SOLD_OUT)
     type: String,
-    required: false
+    enum:["FOR_SALE","SOLD_OUT"],
+    default: "FOR_SALE"
   },
   pw:{
     type: Number,

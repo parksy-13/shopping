@@ -9,7 +9,7 @@ const validationTest = joi.object({
   content: joi.string().min(1).max(100),
   writer: joi.string().min(1).max(15),
   pw: joi.number().min(1).max(1000000),
-  soldStatus: joi.string().valid('FOR_SALE', 'SOLD_OUT'),
+  soldStatus: joi.string()
 })
 
 /* 상품 작성 API */
@@ -18,7 +18,7 @@ const validationTest = joi.object({
 router.post('/products', async (req, res, next) => {
   // const { product, content, writer, pw , soldStatus} = req.body;
   const validation = await validationTest.validateAsync(req.body);
-  const { product, content, writer, pw , soldStatus} = validation;
+  const { product, content, writer, pw, soldStatus } = validation;
   if (!product) {
     return res.status(400).json({ errorMessage: "상품이 없습니다." });
   }
@@ -35,9 +35,12 @@ router.post('/products', async (req, res, next) => {
 /** 상품 상세 목록 조회 API*/
 
 router.get('/products', async (req, res) => {
-  const products = await Item.find().sort('-date').exec();
-
-  return res.status(200).json({ products });
+  try {
+    const products = await Item.find().sort('-date').exec();
+    return res.status(200).json({ products })
+  } catch {
+    res.status(500).json({errorMessage: "에러가 발생하였습니다."})
+  };
 })
 
 /** 상품 목록 조회 API **/
@@ -50,7 +53,7 @@ router.get('/products/:productsId', async (req, res) => {
   const targetStatus = currentProduct.soldStatus;
   const targetDate = currentProduct.date;
 
-  return res.status(200).json({targetProduct,targetWriter,targetStatus,targetDate});
+  return res.status(200).json({ targetProduct, targetWriter, targetStatus, targetDate });
 })
 
 /** 상품 정보(content,) 수정 API(pw 동일시)**/
@@ -66,18 +69,18 @@ router.patch('/products/:productsId', async (req, res) => {
 
   //비밀번호가 일치할 때 수정 기능
   if (product) {
-    const targetProduct = await Item.findOne({ product}).exec();
+    const targetProduct = await Item.findOne({ product }).exec();
     if (pw === targetProduct.pw && product === targetProduct.product) {
       targetProduct.content = currentProduct.content;
       targetProduct.soldStatus = currentProduct.soldStatus;
       await targetProduct.save();
-    }else{
+    } else {
       return res.status(404).json({ errorMessage: "상품명과 비밀번호가 다릅니다." });
     }
     currentProduct.content = content;
     currentProduct.soldStatus = soldStatus;
-  }else{
-    return res.status(404).json({errorMessage: "상품 조회에 실패하였습니다."});
+  } else {
+    return res.status(404).json({ errorMessage: "상품 조회에 실패하였습니다." });
   }
 
   await currentProduct.save();
@@ -85,24 +88,24 @@ router.patch('/products/:productsId', async (req, res) => {
 })
 
 /** 상품 삭제하기 API **/
-router.delete('/products/:productsId',async(req,res)=>{
-const productsId = req.params.productsId;
-const { product, pw } = req.body;
+router.delete('/products/:productsId', async (req, res) => {
+  const productsId = req.params.productsId;
+  const { product, pw } = req.body;
 
-const currentProduct = await Item.findById(productsId).exec();
-if (!currentProduct) {
-  return res.status(404).json({ errorMessage: "상품 조회에 실패하였습니다." });
-}
-
-// 비밀번호가 일치할 때 삭제 기능
-if (product) {
-  if (pw === currentProduct.pw && product === currentProduct.product) {
-    await Item.deleteOne({ _id: productsId});
-    return res.status(200).json({});
-  }else{
-    return res.status(404).json({ errorMessage: "상품명과 비밀번호가 다릅니다." });
+  const currentProduct = await Item.findById(productsId).exec();
+  if (!currentProduct) {
+    return res.status(404).json({ errorMessage: "상품 조회에 실패하였습니다." });
   }
-}
+
+  // 비밀번호가 일치할 때 삭제 기능
+  if (product) {
+    if (pw === currentProduct.pw && product === currentProduct.product) {
+      await Item.deleteOne({ _id: productsId });
+      return res.status(200).json({});
+    } else {
+      return res.status(404).json({ errorMessage: "상품명과 비밀번호가 다릅니다." });
+    }
+  }
 })
 
 export default router;
