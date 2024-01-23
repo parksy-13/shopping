@@ -32,12 +32,29 @@ router.post('/products', async (req, res, next) => {
   return res.status(201).json({ newProduct });
 })
 
-/** 상품 목록 조회 API **/
-//상품명, 작성자명, 상품 상태, 작성 날짜 조회하기
+/** 상품 상세 목록 조회 API*/
+router.get('/', async (req, res, next) => {
+  return res.status(200).json('asfd' );
+})
+
+
 router.get('/products', async (req, res, next) => {
   const products = await Item.find().sort('-date').exec();
 
   return res.status(200).json({ products });
+})
+
+/** 상품 목록 조회 API **/
+//상품명, 작성자명, 상품 상태, 작성 날짜 조회하기
+router.get('/products/:productsId', async (req, res, next) => {
+  const { productsId } = req.params;
+  const currentProduct = await Item.findById(productsId).exec();
+  const targetProduct = currentProduct.product;
+  const targetWriter = currentProduct.writer;
+  const targetStatus = currentProduct.soldStatus;
+  const targetDate = currentProduct.date;
+
+  return res.status(200).json({targetProduct,targetWriter,targetStatus,targetDate});
 })
 
 /** 상품 정보(content) 수정 API(pw 동일시)**/
