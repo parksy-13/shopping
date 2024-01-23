@@ -15,7 +15,7 @@ router.get('/', (req, res) => {
   return res.json({ message: 'Hi!' });
 });
 
-app.use('/api', [router,ProductsRouter]);
+app.use('/api', [router, ProductsRouter]);
 
 app.listen(PORT, () => {
   console.log(PORT, '포트로 서버가 열렸어요!');

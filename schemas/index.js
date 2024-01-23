@@ -10,7 +10,7 @@ const connect = () => {
       `mongodb+srv://sparta-user:${process.env.password}@express-mongo.prguphm.mongodb.net/?retryWrites=true&w=majority`,
       {
         dbName: 'node_lv1', // node_lv1 데이터베이스명을 사용합니다.
-      },
+      }
     )
     .then(() => console.log('MongoDB 연결에 성공하였습니다.'))
     .catch((err) => console.log(`MongoDB 연결에 실패하였습니다. ${err}`));
