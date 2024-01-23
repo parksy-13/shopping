@@ -33,12 +33,8 @@ router.post('/products', async (req, res, next) => {
 })
 
 /** 상품 상세 목록 조회 API*/
-router.get('/', async (req, res, next) => {
-  return res.status(200).json('asfd' );
-})
 
-
-router.get('/products', async (req, res, next) => {
+router.get('/products', async (req, res) => {
   const products = await Item.find().sort('-date').exec();
 
   return res.status(200).json({ products });
@@ -46,8 +42,9 @@ router.get('/products', async (req, res, next) => {
 
 /** 상품 목록 조회 API **/
 //상품명, 작성자명, 상품 상태, 작성 날짜 조회하기
-router.get('/products/:productsId', async (req, res, next) => {
+router.get('/products/:productsId', async (req, res) => {
   const { productsId } = req.params;
+  console.log(productsId);
   const currentProduct = await Item.findById(productsId).exec();
   const targetProduct = currentProduct.product;
   const targetWriter = currentProduct.writer;
@@ -57,8 +54,8 @@ router.get('/products/:productsId', async (req, res, next) => {
   return res.status(200).json({targetProduct,targetWriter,targetStatus,targetDate});
 })
 
-/** 상품 정보(content, soldStatus) 수정 API(pw 동일시)**/
-router.patch('/products/:productsId', async (req, res, next) => {
+/** 상품 정보(content,) 수정 API(pw 동일시)**/
+router.patch('/products/:productsId', async (req, res) => {
   const { productsId } = req.params;
   const { product, content, pw, soldStatus } = req.body;
 
@@ -87,9 +84,10 @@ router.patch('/products/:productsId', async (req, res, next) => {
 })
 
 /** 상품 삭제하기 API **/
-router.delete('/products/:productsId',async(req,res,next)=>{
+router.delete('/products/:productsId',async(req,res)=>{
 const {productsId} = req.params;
 const { product, pw } = req.body;
+console.log(productsId);
 
 const currentProduct = await Item.findById(productsId).exec();
 if (!currentProduct) {
