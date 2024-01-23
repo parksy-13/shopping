@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 const ItemSchema = new mongoose.Schema({
   product: { // 상품명
     type: String,
-    required: true// name 필드는 필수 요소입니다.
+    required: true,
+    unique: true// name 필드는 필수 요소입니다.
   },
   content: { // 작성 내용
     type: String,

@@ -43,8 +43,7 @@ router.get('/products', async (req, res) => {
 /** 상품 목록 조회 API **/
 //상품명, 작성자명, 상품 상태, 작성 날짜 조회하기
 router.get('/products/:productsId', async (req, res) => {
-  const { productsId } = req.params;
-  console.log(productsId);
+  const productsId = req.params.productsId;
   const currentProduct = await Item.findById(productsId).exec();
   const targetProduct = currentProduct.product;
   const targetWriter = currentProduct.writer;
@@ -56,7 +55,7 @@ router.get('/products/:productsId', async (req, res) => {
 
 /** 상품 정보(content,) 수정 API(pw 동일시)**/
 router.patch('/products/:productsId', async (req, res) => {
-  const { productsId } = req.params;
+  const productsId = req.params.productsId;
   const { product, content, pw, soldStatus } = req.body;
 
   // 나의 id에 맞는 상품이 무엇인지 찾는다.
@@ -68,7 +67,7 @@ router.patch('/products/:productsId', async (req, res) => {
   //비밀번호가 일치할 때 수정 기능
   if (product) {
     const targetProduct = await Item.findOne({ product}).exec();
-    if (pw === currentProduct.pw && product === currentProduct.product) {
+    if (pw === targetProduct.pw && product === targetProduct.product) {
       targetProduct.content = currentProduct.content;
       targetProduct.soldStatus = currentProduct.soldStatus;
       await targetProduct.save();
@@ -77,6 +76,8 @@ router.patch('/products/:productsId', async (req, res) => {
     }
     currentProduct.content = content;
     currentProduct.soldStatus = soldStatus;
+  }else{
+    return res.status(404).json({errorMessage: "상품 조회에 실패하였습니다."});
   }
 
   await currentProduct.save();
@@ -85,9 +86,8 @@ router.patch('/products/:productsId', async (req, res) => {
 
 /** 상품 삭제하기 API **/
 router.delete('/products/:productsId',async(req,res)=>{
-const {productsId} = req.params;
+const productsId = req.params.productsId;
 const { product, pw } = req.body;
-console.log(productsId);
 
 const currentProduct = await Item.findById(productsId).exec();
 if (!currentProduct) {
